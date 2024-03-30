@@ -1,0 +1,76 @@
+package com.nt.dao;
+
+import java.util.List;
+
+import com.nt.dto.employee;
+
+public interface EmployeeDAO {
+
+    void insert(employee emp);
+
+    List<employee> searchEmployeeByPhone(String phone);
+
+    void update(String phone);
+
+    void delete(String phone);
+}
+package com.nt.dao;
+
+import java.util.List;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.nt.dto.employee;
+
+@Repository
+public class EmployeeDAOImpl implements EmployeeDAO {
+
+	@Autowired
+	private SessionFactory sessionFactory;
+
+	@Transactional
+	@Override
+	public void insert(employee emp) {
+		Session session = sessionFactory.getCurrentSession();
+		// Set employee details
+		emp.setName("user");
+		emp.setPass("123");
+		emp.setPhone("9848212336");
+		session.save(emp);
+	}
+
+	@Transactional
+	@Override
+	public List<employee> searchEmployeeByPhone(String phone) {
+		Session session = sessionFactory.getCurrentSession();
+		String hql = "FROM Employee WHERE phone = :phone";
+		return session.createQuery(hql).setParameter("phone", phone).list();
+	}
+
+	@Transactional
+	@Override
+	public void update(String phone) {
+		Session session = sessionFactory.getCurrentSession();
+		List<employee> employees = searchEmployeeByPhone(phone);
+		for (employee emp : employees) {
+			emp.setPass("123456");
+			session.update(emp);
+		}
+		System.out.println("Employees with phone " + phone + " updated successfully.");
+	}
+
+	@Transactional
+	@Override
+	public void delete(String phone) {
+		Session session = sessionFactory.getCurrentSession();
+		List<employee> employees = searchEmployeeByPhone(phone);
+		for (employee emp : employees) {
+			session.delete(emp);
+		}
+		System.out.println("Employees with phone " + phone + " deleted successfully.");
+	}
+}
